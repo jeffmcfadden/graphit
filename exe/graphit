@@ -11,6 +11,30 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
   
+  opts.on("--ymin [ymin]", Float) do |ymin|
+    options[:ymin] = ymin
+  end
+  
+  opts.on("--ymax [ymax]", Float) do |ymax|
+    options[:ymax] = ymax
+  end
+  
+  opts.on("--height [h]", Integer) do |h|
+    options[:height] = h
+  end
+  
+  opts.on("--width [w]", Integer) do |w|
+    options[:width] = w
+  end
+  
+  opts.on("--yticsmod [yticsmod]", Integer) do |yticsmod|
+    options[:yticsmod] = yticsmod
+  end
+  
+  opts.on("--xticsmod [xticsmod]", Integer) do |xticsmod|
+    options[:xticsmod] = xticsmod
+  end
+  
   opts.on("-o", "--output-file [file]", "Filename") do |of|
     options[:outputfile] = of
   end
@@ -123,11 +147,15 @@ options[:outputfile] = "graph.bmp" if options[:outputfile].nil?
                    [1,0,0,0,1],
                    [1,0,0,0,1]]
 
-@h = 300
-@w = 1050
+@h = options[:height] || 300 
+@w = options[:width]  || 1050
 
-@ymin = 40
-@ymax = 95
+@ymin = options[:ymin] || 40
+@ymax = options[:ymax] || 95
+
+puts "h: #{@h}, w: #{@w}"
+puts "ymin: #{@ymin}, ymax: #{@ymax}"
+
 @xmin = 1458621300
 @xmax = 1458770444
 
@@ -136,8 +164,8 @@ options[:outputfile] = "graph.bmp" if options[:outputfile].nil?
 @left_padding   = 100
 @right_padding  = 10
 
-@y_tics_mod = 10
-@x_tics_mod = 3600
+@y_tics_mod = options[:yticsmod] || 10
+@x_tics_mod = options[:xticsmod] || 3600
 
 @graph_width = @w - @left_padding - @right_padding
 @graph_height = @h - @bottom_padding - @top_padding
@@ -237,7 +265,7 @@ end
 def graph_data( data, pixels, color )
   
   # Horizontal Grid lines
-  (@ymin..@ymax).each do |y|
+  (@ymin.to_i..@ymax.to_i).each do |y|
     if y % @y_tics_mod == 0
       p1 = translate_data_point_to_graph_point( { y: y, x: @xmin } )
       p2 = translate_data_point_to_graph_point( { y: y, x: @xmax } )
@@ -350,7 +378,7 @@ File.open( options[:outputfile], 'w') do |f|
   @xmax = 0
   
   ARGF.each_line do |line|
-    puts line
+    # puts line
     l = line.strip.split(":")
     
     next unless l.size == 2
