@@ -15,3 +15,7 @@ Install it yourself:
 ## Usage
 
     $ cat mydata | graphit -o graph.bmp
+
+## Example Output
+
+<img src="https://raw.githubusercontent.com/jeffmcfadden/graphit/master/test-01.png" />
