@@ -1,6 +1,24 @@
 #!/usr/bin/env ruby
 
 require 'bin_utils' # For Speed
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: graphit [options] data"
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+  
+  opts.on("-o", "--output-file [file]", "Filename") do |of|
+    options[:outputfile] = of
+  end
+  
+end.parse!
+
+options[:outputfile] = "graph.bmp" if options[:outputfile].nil?
+
 
 @characters = {}
 
@@ -283,7 +301,7 @@ def graph_data( data, pixels, color )
   pixels
 end
 
-File.open( 'test-01.bmp', 'w') do |f|
+File.open( options[:outputfile], 'w') do |f|
   
   start = Time.now.to_f
   
@@ -445,4 +463,4 @@ File.open( 'test-01.bmp', 'w') do |f|
   f.print pixel_data
 end
 
-`convert test-01.bmp test-01.png`
+`convert #{options[:outputfile]} #{options[:outputfile].gsub('bmp', 'png')}`

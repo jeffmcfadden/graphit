@@ -1,15 +1,17 @@
-# MRTG2XY
+# Graph It!
 
-A very simple utility to convert data from mrtg log files to a simple x:y format.
+A very basic graphing library that writes data to bmp images.
 
-I use this to send data to a graph utility.
+It's probably too basic to work for you.
+
+I use my `mrtg2xy` gem to process data from `mrtg` which I pipe into this utility.
 
 ## Installation
 
 Install it yourself:
 
-    $ gem install mrtg2xy
+    $ gem install graphit
 
 ## Usage
 
-    $ mrtg2xy
+    $ cat mydata | graphit -o graph.bmp

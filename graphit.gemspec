@@ -6,7 +6,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'graphit/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "Graphit"
+  spec.name          = "graphit"
   spec.version       = Graphit::VERSION
   spec.authors       = ["jeffmcfadden"]
   spec.email         = ["jeff@forgeapps.com"]
@@ -20,6 +20,8 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency 'bin_utils'
 
   spec.add_development_dependency "bundler", "~> 1.9"
   spec.add_development_dependency "rake", "~> 10.0"
