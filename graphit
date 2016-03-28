@@ -1,0 +1,447 @@
+#!/usr/bin/env ruby
+
+require 'bin_utils' # For Speed
+
+@characters = {}
+
+@characters["0"] = [[0,0,1,0,0],
+                   [0,1,0,1,0],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [0,1,0,1,0],
+                   [0,0,1,0,0]]
+
+@characters["1"] = [[0,0,1,0,0],
+                   [0,1,1,0,0],
+                   [1,0,1,0,0],
+                   [0,0,1,0,0],
+                   [0,0,1,0,0],
+                   [0,0,1,0,0],
+                   [0,0,1,0,0],
+                   [1,1,1,1,1]]
+
+
+@characters["2"] = [[0,1,1,1,0],
+                   [1,0,0,0,1],
+                   [0,0,0,1,0],
+                   [0,0,1,0,0],
+                   [0,1,0,0,0],
+                   [1,0,0,0,0],
+                   [1,0,0,0,0],
+                   [1,1,1,1,1]]
+
+@characters["3"] = [[0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,1,1,0],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]]
+
+@characters["4"] = [[0,0,0,0,1],
+                    [0,0,0,1,1],
+                    [0,0,1,0,1],
+                    [0,1,0,0,1],
+                    [1,1,1,1,1],
+                    [0,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,0,0,0,1]]
+
+@characters["5"] = [[1,1,1,1,1],
+                    [1,0,0,0,0],
+                    [1,0,0,0,0],
+                    [1,1,1,1,0],
+                    [1,0,0,0,1],
+                    [0,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]]
+
+@characters["6"] = [[0,0,1,1,1],
+                    [0,1,0,0,0],
+                    [1,0,0,0,0],
+                    [1,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]]
+
+@characters["7"] = [[1,1,1,1,1],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,0,1,0],
+                    [0,0,0,1,0],
+                    [0,0,0,1,0],
+                    [0,0,1,0,0],
+                    [0,0,1,0,0]]
+
+@characters["8"] = [[0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]]
+
+@characters["9"] = [[0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,1],
+                    [0,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]]
+
+
+@characters["A"] = [[0,0,1,0,0],
+                   [0,1,0,1,0],
+                   [1,0,0,0,1],
+                   [1,1,1,1,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1],
+                   [1,0,0,0,1]]
+
+@h = 500
+@w = 1500
+
+@ymin = 40
+@ymax = 95
+@xmin = 1458621300
+@xmax = 1458770444
+
+@bottom_padding = 25
+@top_padding    = 10
+@left_padding   = 100
+@right_padding  = 10
+
+@y_tics_mod = 10
+@x_tics_mod = 3600
+
+@graph_width = @w - @left_padding - @right_padding
+@graph_height = @h - @bottom_padding - @top_padding
+
+def recalculate_pixels_per_unit
+  @x_pixels_per_unit = @graph_width.to_f / (@xmax.to_f - @xmin.to_f)
+  @y_pixels_per_unit = @graph_height.to_f / (@ymax.to_f - @ymin.to_f)
+  
+  if @xmax - @xmin < (86400 * 3.5)
+    @x_tics_mod = 3600
+  elsif @xmax - @xmin < (86400 * 7.5)
+    @x_tics_mod = (86400 * 24)
+  elsif @xmax - @xmin < (86400 * 50)
+    @x_tics_mod = (86400 * 24 * 7)
+  elsif @xmax - @xmin < (86400 * 800)
+    @x_tics_mod = (86400 * 24 * 30)
+  else
+    @x_tics_mod = 3600
+  end
+  
+  puts "@x_pixels_per_unit: #{@x_pixels_per_unit}"
+  puts "@y_pixels_per_unit: #{@y_pixels_per_unit}"
+end
+
+def translate_data_point_to_graph_point( point )
+  #puts "In x: #{point[:x]}, y: #{point[:y]}"
+    
+  if point[:x] < @xmin
+    point[:x] = @xmin
+  elsif point[:x] > @xmax
+    point[:x] = @xmax
+  end
+  
+  if point[:y] < @ymin
+    point[:y] = @ymin
+  elsif point[:y] > @ymax
+    point[:y] = @ymax
+  end
+  
+  #puts "Mid x: #{point[:x]}, y: #{point[:y]}"
+  
+  x = @left_padding + (point[:x] - @xmin) * @x_pixels_per_unit
+  y = @h - @bottom_padding - ((point[:y] - @ymin) * @y_pixels_per_unit)
+  
+  #puts "Out x: #{x}, y: #{y}"
+  
+  return { x: x, y: y }
+end
+
+def draw_text( text, px, py, pixels, color )
+  text.each_char do |c|
+    if @characters[c].nil?
+      # skip
+    else
+      @characters[c].each_with_index do |row, y|
+        row.each_with_index do |col, x|
+          if col == 0
+            # Do nothing
+          else
+            thisY = px + x
+            thisX = py + y
+            
+            pixels[thisX][thisY] = color unless pixels[thisX][thisY].nil?
+          end
+        end
+      end
+      
+      px += @characters[c].size + 1
+    end
+  end
+  
+  return pixels
+end
+
+def draw_line( x1, y1, x2, y2, pixels, color )
+  len = Math.sqrt( (x2-x1)**2 + (y2 - y1)**2 )
+  
+  d = 0.0
+  
+  while d < 1
+    if x2 == x1
+      x = x1
+    else
+      x = x1 + (x2.to_f-x1.to_f) * d
+    end
+    
+    y = y1 + (y2.to_f-y1.to_f) * d
+    
+    pixels[y.to_i][x.to_i] = color unless pixels[y.to_i][x.to_i].nil?
+    
+    d += 1.0 / ( len.to_f * 2.0 )
+  end
+  
+  return pixels
+end
+
+def graph_data( data, pixels, color )
+  
+  # Horizontal Grid lines
+  (@ymin..@ymax).each do |y|
+    if y % @y_tics_mod == 0
+      p1 = translate_data_point_to_graph_point( { y: y, x: @xmin } )
+      p2 = translate_data_point_to_graph_point( { y: y, x: @xmax } )
+            
+      pixels = draw_line( p1[:x], p1[:y], p2[:x], p2[:y], pixels, [0xAA,0xAA,0xAA] )
+      
+      # Dunno why 60. Can't figure it out. I'm sure it's because I'm dumb.
+      pixels = draw_text( "#{y}", p1[:x] - (10 * y.to_s.size), p1[:y], pixels, [0x00,0x00,0x00] )
+    end
+  end
+  
+  #Vertical Grid Lines
+  (@xmin..@xmax).each do |x|
+    if x % @x_tics_mod == 0
+      p1 = translate_data_point_to_graph_point( { x: x, y: @ymin } )
+      p2 = translate_data_point_to_graph_point( { x: x, y: @ymax } )
+      
+      #Manual offset for GMT-7
+      if (x + (3600*-7)) % 86400 == 0
+        lcolor = [0x00,0x00,0xFF]
+      else
+        lcolor = [0xAA,0xAA,0xAA]
+      end
+      
+      
+      pixels = draw_line( p1[:x], p1[:y], p2[:x], p2[:y], pixels, lcolor )
+    end
+  end
+  
+  # Graph Outline
+  p1 = translate_data_point_to_graph_point( { x: @xmin, y: @ymin } )
+  p2 = translate_data_point_to_graph_point( { x: @xmax, y: @ymin } )
+  pixels = draw_line( p1[:x], p1[:y], p2[:x], p2[:y], pixels, [0x22,0x22,0x22] )
+  p1 = translate_data_point_to_graph_point( { x: @xmax, y: @ymin } )
+  p2 = translate_data_point_to_graph_point( { x: @xmax, y: @ymax  } )
+  pixels = draw_line( p1[:x], p1[:y], p2[:x], p2[:y], pixels, [0x22,0x22,0x22] )
+  p1 = translate_data_point_to_graph_point( { x: @xmax, y: @ymax } )
+  p2 = translate_data_point_to_graph_point( { x: @xmin, y: @ymax } )
+  pixels = draw_line( p1[:x], p1[:y], p2[:x], p2[:y], pixels, [0x22,0x22,0x22] )
+  p1 = translate_data_point_to_graph_point( { x: @xmin, y: @ymax } )
+  p2 = translate_data_point_to_graph_point( { x: @xmin, y: @ymin } )
+  pixels = draw_line( p1[:x], p1[:y], p2[:x], p2[:y], pixels, [0x22,0x22,0x22] )
+  
+  
+  data.each_with_index do |p, i|
+    data[i] = translate_data_point_to_graph_point( p )
+  end
+  
+  data.each_with_index do |point, i|
+    if i < data.size - 1
+      x1 = point[:x]
+      y1 = point[:y]
+    
+      x2 = data[i+1][:x]
+      y2 = data[i+1][:y]
+      
+      pixels = draw_line( x1, y1, x2, y2, pixels, color )
+    end
+  end
+
+  pixels
+end
+
+File.open( 'test-01.bmp', 'w') do |f|
+  
+  start = Time.now.to_f
+  
+  h = @h
+  w = @w
+  
+  pixels = []
+  (1..h).each do |y|
+    row = []
+    (1..w).each do |x|
+      row.push( [0xCC,0xCC,0xCC] )
+    end
+    pixels.push(row)
+  end
+  
+  puts "Generating pixels: #{Time.now.to_f - start}"
+  
+  # (0..499).each do |n|
+  #
+  #   i = (n/100.0) * (2 * Math::PI)
+  #
+  #   y = 50 + (40 * Math.sin(i))
+  #
+  #   pixels[y][n] = [0x00,0x00,0xFF]
+  # end
+  #
+  # (0..499).each do |n|
+  #
+  #   i = (n/100.0) * (2 * Math::PI)
+  #
+  #   y = 50 + (40 * Math.cos(i))
+  #
+  #   pixels[y][n] = [0xFF,0x00,0x00]
+  # end
+  
+  # pixels = draw_line( 50, 75, 900, 250, pixels, [0x00,0x00,0xFF] )
+  # pixels = draw_line( 40, 65, 900, 250, pixels, [0x00,0xFF,0xFF] )
+  #
+  # pixels = draw_line( 50, 50, w, 50, pixels, [0xAA,0xAA,0xAA] )
+  # pixels = draw_line( 50, 100, w, 100, pixels, [0xAA,0xAA,0xAA] )
+  # pixels = draw_line( 50, 150, w, 150, pixels, [0xAA,0xAA,0xAA] )
+  
+  data_to_graph = []
+  
+  @xmin = 9999999999
+  @xmax = 0
+  
+  ARGF.each_line do |line|
+    puts line
+    l = line.strip.split(":")
+    
+    next unless l.size == 2
+    
+    x = l[0].to_i
+    y = l[1].to_f
+    
+    @xmin = x if x < @xmin
+    @xmax = x if x > @xmax
+    
+    data_to_graph.push( { x: x, y: y } )
+  end
+  
+  puts data_to_graph.size
+  puts "Data points ^"
+
+  puts "Max: #{@xmax}, Min: #{@xmin}"
+  
+  recalculate_pixels_per_unit
+  
+  # (0..140).each do |n|
+  #   point = { x: n * 10, y: @ymax - rand( @ymax   ).to_i }
+  #   data_to_graph.push( translate_data_point_to_graph_point( point ) )
+  # end
+  
+  graph_data( data_to_graph, pixels, [0xEE,0x00,0x00] )
+  
+  @xmin = @xmax if @xmin > @xmax
+  
+  (@xmin..@xmax).each do |x|
+    
+    if x % 3600 == 0
+      x_offset = translate_data_point_to_graph_point( { x: x, y: 10 } )[:x].to_i
+      
+      h = Time.at(x).hour.to_s
+      
+      puts "h: #{h}, x: #{x_offset}"
+      
+      pixels = draw_text( h, x_offset, @h - 15, pixels, [0x00,0x00,0x00] )
+    end
+  end
+  
+  
+  pixel_data = ""
+
+  #pixels = [["0000FF", "FFFFFF", "0000FF", "FFFFFF"],
+  #          ["FF0000", "00FF00", "FF0000", "00FF00"] ]
+  
+  height = pixels.size
+  width  = pixels[0].size
+  
+  start = Time.now.to_f
+  
+  pixels.reverse.each_with_index do |row, i|
+    row_bytes = 0
+    row.each do |pixel|
+      
+      BinUtils.append_int8!(pixel_data, pixel[0]) 
+      BinUtils.append_int8!(pixel_data, pixel[1]) 
+      BinUtils.append_int8!(pixel_data, pixel[2]) 
+      
+      #pixel_data += [pixel[0,2].hex].pack( "C" )
+      #pixel_data += [pixel[2,2].hex].pack( "C" )
+      #pixel_data += [pixel[4,2].hex].pack( "C" )
+      
+      row_bytes += 3
+    end
+    
+    # Padding
+    bytes_to_pad = row_bytes % 4
+    
+    # puts "Row: #{i}, bytes: #{row_bytes}, padding: #{bytes_to_pad}"
+    
+    bytes_to_pad.times do
+      BinUtils.append_int8!(pixel_data, 0x00) 
+    end
+  end
+  
+  puts "Generating pixel data string: #{Time.now.to_f - start}"
+  
+  
+  file_size = 54 + pixel_data.size
+
+  f.print [0x42].pack ("C")
+  f.print [0x4D].pack( "C" )
+  f.print [file_size].pack( "L" )
+  
+  f.print [0x00].pack( "C" ) # Unused
+  f.print [0x00].pack( "C" )
+  f.print [0x00].pack( "C" )
+  f.print [0x00].pack( "C" )
+  
+  f.print [54].pack( "L" ) # Pixel Array Offset
+  
+  f.print [0x28, 0x00, 0x00, 0x00].pack( "L" )  #Number of bytes in the DIB header (from this point)
+
+  f.print [width].pack( "L" ) #Width of the bitmap in pixels
+  f.print [height].pack( "L" ) #Height
+  
+  f.print [0x01, 0x00].pack( "S" ) # Number of color planes being used
+  f.print [0x18, 0x00].pack( "S" ) # Number of bits per pixel
+  f.print [0x00].pack( "L" ) # BI_RGB, no pixel array compression used
+  f.print [pixel_data.size].pack( "L" ) # Size of the raw bitmap data (including padding)
+  f.print [0x130B].pack( "L" ) #2835 pixels/meter horizontal
+  f.print [0x130B].pack( "L" ) #2835 pixels/meter vertical
+  f.print [0x00].pack( "L" ) # Number of colors in the palette
+  f.print [0x00].pack( "L" ) #0 means all colors are important
+  
+  f.print pixel_data
+end
+
+`convert test-01.bmp test-01.png`
