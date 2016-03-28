@@ -105,8 +105,8 @@ require 'bin_utils' # For Speed
                    [1,0,0,0,1],
                    [1,0,0,0,1]]
 
-@h = 500
-@w = 1500
+@h = 300
+@w = 1050
 
 @ymin = 40
 @ymax = 95
@@ -294,7 +294,7 @@ File.open( 'test-01.bmp', 'w') do |f|
   (1..h).each do |y|
     row = []
     (1..w).each do |x|
-      row.push( [0xCC,0xCC,0xCC] )
+      row.push( [0xEE,0xEE,0xEE] )
     end
     pixels.push(row)
   end
@@ -367,11 +367,12 @@ File.open( 'test-01.bmp', 'w') do |f|
     if x % 3600 == 0
       x_offset = translate_data_point_to_graph_point( { x: x, y: 10 } )[:x].to_i
       
-      h = Time.at(x).hour.to_s
+      h = Time.at(x).hour
       
-      puts "h: #{h}, x: #{x_offset}"
-      
-      pixels = draw_text( h, x_offset, @h - 15, pixels, [0x00,0x00,0x00] )
+      if h % 2 == 0
+        puts "h: #{h.to_s}, x: #{x_offset}"
+        pixels = draw_text( h.to_s, x_offset, @h - 15, pixels, [0x00,0x00,0x00] )
+      end
     end
   end
   
