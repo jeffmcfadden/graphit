@@ -30,6 +30,12 @@ module Graphit
       recalculate_ymin if ymin.to_s == "auto"
       recalculate_ymax if ymax.to_s == "auto"
       
+      # Ensure floats
+      self.xmin = self.xmin.to_f
+      self.xmax = self.xmax.to_f
+      self.ymin = self.ymin.to_f
+      self.ymax = self.ymax.to_f
+      
       recalculate_pixels_per_unit      
             
       puts "BGColor: #{options[:background_color]}"

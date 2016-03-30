@@ -23,19 +23,19 @@ OptionParser.new do |opts|
     options[:png] = png
   end
   
-  opts.on("--ymin [ymin]", Float) do |ymin|
+  opts.on("--ymin [ymin]", String) do |ymin|
     options[:ymin] = ymin
   end
   
-  opts.on("--ymax [ymax]", Float) do |ymax|
+  opts.on("--ymax [ymax]", String) do |ymax|
     options[:ymax] = ymax
   end
   
-  opts.on("--xmin [xmin]", Float) do |xmin|
+  opts.on("--xmin [xmin]", String) do |xmin|
     options[:xmin] = xmin
   end
   
-  opts.on("--xmax [xmax]", Float) do |xmax|
+  opts.on("--xmax [xmax]", String) do |xmax|
     options[:xmax] = xmax
   end
   
@@ -93,9 +93,11 @@ data_to_graph = []
 xmin = 9999999999
 xmax = 0
 
+# Expected Input:
+# x y
 ARGF.each_line do |line|
   # puts line
-  l = line.strip.split(":")
+  l = line.strip.split(" ")
   
   next unless l.size == 2
   
