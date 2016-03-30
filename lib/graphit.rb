@@ -1,1 +1,6 @@
 require 'graphit/pixel_font.rb'
+require 'graphit/bmp_file.rb'
+require 'graphit/color.rb'
+require 'graphit/bitmap_drawing.rb'
+require 'graphit/point.rb'
+require 'graphit/graph.rb'
